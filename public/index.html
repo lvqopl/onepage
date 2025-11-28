@@ -6,7 +6,6 @@
   <title>我的标签页</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
@@ -14,8 +13,24 @@
   
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
-    const { Search, Plus, X, Edit2, Trash2, ExternalLink, Cloud, Sparkles, Download, Upload } = lucide;
+    const { useState, useEffect, useRef, createElement: h } = React;
+
+    // 简化版图标组件
+    const SearchIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('circle', { cx: "11", cy: "11", r: "8" }), h('path', { d: "m21 21-4.3-4.3" }));
+    
+    const PlusIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M5 12h14" }), h('path', { d: "M12 5v14" }));
+    
+    const XIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M18 6 6 18" }), h('path', { d: "m6 6 12 12" }));
+    
+    const EditIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" }));
+    
+    const TrashIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M3 6h18" }), h('path', { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }), h('path', { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" }));
+    
+    const DownloadIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), h('polyline', { points: "7 10 12 15 17 10" }), h('line', { x1: "12", x2: "12", y1: "15", y2: "3" }));
+    
+    const UploadIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), h('polyline', { points: "17 8 12 3 7 8" }), h('line', { x1: "12", x2: "12", y1: "3", y2: "15" }));
+    
+    const ExternalLinkIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M15 3h6v6" }), h('path', { d: "M10 14 21 3" }), h('path', { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }));
 
     function StartPage() {
       const [bookmarks, setBookmarks] = useState([]);
@@ -186,17 +201,11 @@
             }
 
             const validBookmarks = imported.filter(b => b.title && b.url);
-            if (validBookmarks.length === 0) {
-              setSaveMessage('✗ 没有有效的书签数据');
-              return;
-            }
-
             const existingUrls = new Set(bookmarks.map(b => b.url));
             const newBookmarks = validBookmarks.filter(b => !existingUrls.has(b.url));
             
             if (newBookmarks.length === 0) {
               setSaveMessage('⚠ 所有书签已存在');
-              setTimeout(() => setSaveMessage(''), 2000);
               return;
             }
 
@@ -212,10 +221,8 @@
             saveBookmarks(updatedBookmarks);
             
             setSaveMessage(`✓ 成功导入 ${newBookmarks.length} 个书签`);
-            setTimeout(() => setSaveMessage(''), 3000);
           } catch (error) {
             setSaveMessage('✗ 文件解析失败');
-            setTimeout(() => setSaveMessage(''), 2000);
           }
         };
         
@@ -245,11 +252,7 @@
 
           <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
             <div className="text-center mb-12 pt-8">
-              <div className="flex items-center justify-center mb-4">
-                <Cloud className="w-8 h-8 text-indigo-600 mr-2" />
-                <h1 className="text-3xl font-bold text-gray-800">我的标签页</h1>
-                <Sparkles className="w-6 h-6 text-yellow-500 ml-2" />
-              </div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">✨ 我的标签页</h1>
               <p className="text-5xl font-light text-gray-700 mb-2">
                 {currentTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -264,7 +267,9 @@
             <div className="mb-8">
               <div className="max-w-2xl mx-auto">
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <SearchIcon />
+                  </div>
                   <input
                     type="text"
                     value={searchQuery}
@@ -291,7 +296,7 @@
                 onClick={() => setIsAddingBookmark(!isAddingBookmark)}
                 className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
               >
-                {isAddingBookmark ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                {isAddingBookmark ? <XIcon /> : <PlusIcon />}
                 {isAddingBookmark ? '取消' : '添加书签'}
               </button>
               
@@ -299,7 +304,7 @@
                 onClick={exportBookmarks}
                 className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
               >
-                <Download className="w-5 h-5" />
+                <DownloadIcon />
                 导出
               </button>
               
@@ -307,7 +312,7 @@
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
               >
-                <Upload className="w-5 h-5" />
+                <UploadIcon />
                 导入
               </button>
             </div>
@@ -400,30 +405,21 @@
                           src={bookmark.customIcon} 
                           alt={bookmark.title}
                           className="w-10 h-10 rounded-lg object-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
                         />
-                      ) : null}
-                      {!bookmark.customIcon && getFaviconUrl(bookmark.url) ? (
+                      ) : getFaviconUrl(bookmark.url) ? (
                         <img 
                           src={getFaviconUrl(bookmark.url)} 
                           alt={bookmark.title}
                           className="w-10 h-10 rounded-lg"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
                         />
-                      ) : null}
-                      <div 
-                        className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md"
-                        style={{ display: bookmark.customIcon || getFaviconUrl(bookmark.url) ? 'none' : 'flex' }}
-                      >
-                        {bookmark.title[0]}
+                      ) : (
+                        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">
+                          {bookmark.title[0]}
+                        </div>
+                      )}
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ExternalLinkIcon />
                       </div>
-                      <ExternalLink className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <h3 className="font-medium text-gray-800 truncate">{bookmark.title}</h3>
                     <p className="text-xs text-gray-500 truncate mt-1">{bookmark.url}</p>
@@ -433,13 +429,13 @@
                       onClick={() => startEdit(bookmark)}
                       className="p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
                     >
-                      <Edit2 className="w-3 h-3" />
+                      <EditIcon />
                     </button>
                     <button
                       onClick={() => deleteBookmark(bookmark.id)}
                       className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <TrashIcon />
                     </button>
                   </div>
                 </div>
@@ -455,14 +451,13 @@
             )}
 
             <div className="mt-16 text-center text-sm text-gray-500">
-              <p>Powered by Cloudflare Workers + KV | Made with ❤️</p>
+              <p>Powered by Cloudflare Pages | Made with ❤️</p>
             </div>
           </div>
         </div>
       );
     }
 
-    // 关键修复：使用 React 18 的 createRoot API
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<StartPage />);
   </script>
