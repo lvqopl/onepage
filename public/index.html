@@ -25,6 +25,7 @@
     const UploadIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), h('polyline', { points: "17 8 12 3 7 8" }), h('line', { x1: "12", x2: "12", y1: "3", y2: "15" }));
     const SettingsIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), h('circle', { cx: "12", cy: "12", r: "3" }));
     const ExternalLinkIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M15 3h6v6" }), h('path', { d: "M10 14 21 3" }), h('path', { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }));
+    const CheckIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('polyline', { points: "20 6 9 17 4 12" }));
 
     function StartPage() {
       const [bookmarks, setBookmarks] = useState([]);
@@ -35,12 +36,12 @@
       const [isAddingBookmark, setIsAddingBookmark] = useState(false);
       const [editingBookmark, setEditingBookmark] = useState(null);
       const [newBookmark, setNewBookmark] = useState({ title: '', url: '', category: '', customIcon: '' });
-      const [currentTime, setCurrentTime] = useState(new Date());
-      const [greeting, setGreeting] = useState('');
       const [saveMessage, setSaveMessage] = useState('');
       const [showSettings, setShowSettings] = useState(false);
       const [bgImage, setBgImage] = useState('');
       const [siteIcon, setSiteIcon] = useState('');
+      const [selectedBookmarks, setSelectedBookmarks] = useState(new Set());
+      const [batchCategory, setBatchCategory] = useState('');
       const fileInputRef = useRef(null);
       const htmlInputRef = useRef(null);
 
@@ -50,18 +51,6 @@
         baidu: { name: '百度', url: 'https://www.baidu.com/s?wd=' },
         duckduckgo: { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' }
       };
-
-      useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-        return () => clearInterval(timer);
-      }, []);
-
-      useEffect(() => {
-        const hour = currentTime.getHours();
-        if (hour < 12) setGreeting('早上好');
-        else if (hour < 18) setGreeting('下午好');
-        else setGreeting('晚上好');
-      }, [currentTime]);
 
       useEffect(() => {
         loadBookmarks();
@@ -188,6 +177,68 @@
         const updatedBookmarks = bookmarks.filter(b => b.id !== id);
         setBookmarks(updatedBookmarks);
         saveBookmarks(updatedBookmarks);
+      };
+
+      const toggleBookmarkSelection = (id) => {
+        const newSelected = new Set(selectedBookmarks);
+        if (newSelected.has(id)) {
+          newSelected.delete(id);
+        } else {
+          newSelected.add(id);
+        }
+        setSelectedBookmarks(newSelected);
+      };
+
+      const batchUpdateCategory = () => {
+        if (!batchCategory || selectedBookmarks.size === 0) return;
+        
+        const updatedBookmarks = bookmarks.map(b => 
+          selectedBookmarks.has(b.id) ? { ...b, category: batchCategory } : b
+        );
+        
+        if (!categories.includes(batchCategory)) {
+          const newCategories = [...categories, batchCategory];
+          setCategories(newCategories);
+          saveSettings(newCategories, bgImage, siteIcon);
+        }
+        
+        setBookmarks(updatedBookmarks);
+        saveBookmarks(updatedBookmarks);
+        setSelectedBookmarks(new Set());
+        setBatchCategory('');
+        setSaveMessage('✓ 批量修改成功');
+        setTimeout(() => setSaveMessage(''), 2000);
+      };
+
+      const deleteCategory = (category) => {
+        if (category === '全部') {
+          setSaveMessage('✗ 无法删除"全部"分类');
+          setTimeout(() => setSaveMessage(''), 2000);
+          return;
+        }
+        
+        if (confirm(`确定要删除分类"${category}"吗？该分类下的书签将移至"未分类"。`)) {
+          const updatedBookmarks = bookmarks.map(b => 
+            b.category === category ? { ...b, category: '未分类' } : b
+          );
+          
+          const newCategories = categories.filter(c => c !== category);
+          if (!newCategories.includes('未分类')) {
+            newCategories.push('未分类');
+          }
+          
+          setCategories(newCategories);
+          setBookmarks(updatedBookmarks);
+          saveSettings(newCategories, bgImage, siteIcon);
+          saveBookmarks(updatedBookmarks);
+          
+          if (activeCategory === category) {
+            setActiveCategory('全部');
+          }
+          
+          setSaveMessage('✓ 分类已删除');
+          setTimeout(() => setSaveMessage(''), 2000);
+        }
       };
 
       const startEdit = (bookmark) => {
@@ -361,21 +412,46 @@
             </div>
           )}
 
-          <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
-            <div className="text-center mb-12 pt-8">
-              <h1 className="text-3xl font-bold text-gray-800 mb-4">✨ 我的标签页</h1>
-              <p className="text-5xl font-light text-gray-700 mb-2">
-                {currentTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
-              </p>
-              <p className="text-xl text-gray-600">{greeting}，开始愉快的一天吧！</p>
-              {saveMessage && (
-                <p className={`mt-2 text-sm ${saveMessage.includes('成功') || saveMessage.includes('✓') ? 'text-green-600' : saveMessage.includes('⚠') ? 'text-yellow-600' : 'text-red-600'}`}>
+          <div className="relative z-10 container mx-auto px-4 py-6 max-w-7xl">
+            {saveMessage && (
+              <div className="fixed top-4 right-4 z-50">
+                <p className={`px-4 py-2 rounded-lg shadow-lg ${saveMessage.includes('成功') || saveMessage.includes('✓') ? 'bg-green-500 text-white' : saveMessage.includes('⚠') ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white'}`}>
                   {saveMessage}
                 </p>
-              )}
+              </div>
+            )}
+
+            {/* 分类标签 - 移到顶部 */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center gap-2 flex-wrap">
+                {categories.map(category => (
+                  <div key={category} className="flex items-center gap-1">
+                    <button
+                      onClick={() => setActiveCategory(category)}
+                      className={`px-4 py-2 rounded-lg transition-all ${
+                        activeCategory === category
+                          ? 'bg-indigo-600 text-white shadow-md'
+                          : 'bg-white/70 text-gray-700 hover:bg-white hover:shadow-md'
+                      }`}
+                    >
+                      {category}
+                    </button>
+                    {category !== '全部' && (
+                      <button
+                        onClick={() => deleteCategory(category)}
+                        className="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+                        title="删除分类"
+                      >
+                        <XIcon />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="mb-8">
+            {/* 搜索框 */}
+            <div className="mb-6">
               <div className="max-w-2xl mx-auto">
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -387,7 +463,7 @@
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
                     placeholder={`使用 ${searchEngines[searchEngine].name} 搜索...`}
-                    className="w-full pl-12 pr-32 py-4 rounded-2xl border-2 border-transparent bg-white/70 backdrop-blur-sm shadow-lg focus:outline-none focus:border-indigo-400 focus:bg-white transition-all text-lg"
+                    className="w-full pl-12 pr-32 py-3 rounded-xl border-2 border-transparent bg-white/70 backdrop-blur-sm shadow-lg focus:outline-none focus:border-indigo-400 focus:bg-white transition-all"
                   />
                   <select
                     value={searchEngine}
@@ -402,18 +478,19 @@
               </div>
             </div>
 
-            <div className="flex justify-center mb-6 gap-3 flex-wrap">
+            {/* 操作按钮 */}
+            <div className="flex justify-center mb-6 gap-2 flex-wrap">
               <button
                 onClick={() => setIsAddingBookmark(!isAddingBookmark)}
-                className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
               >
                 {isAddingBookmark ? <XIcon /> : <PlusIcon />}
-                {isAddingBookmark ? '取消' : '添加书签'}
+                {isAddingBookmark ? '取消' : '添加'}
               </button>
               
               <button
                 onClick={exportBookmarks}
-                className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
               >
                 <DownloadIcon />
                 导出 JSON
@@ -421,7 +498,7 @@
               
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
               >
                 <UploadIcon />
                 导入 JSON
@@ -429,7 +506,7 @@
 
               <button
                 onClick={() => htmlInputRef.current?.click()}
-                className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
               >
                 <UploadIcon />
                 导入 HTML
@@ -437,15 +514,48 @@
 
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="flex items-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
               >
                 <SettingsIcon />
                 设置
               </button>
             </div>
 
+            {/* 批量操作 */}
+            {selectedBookmarks.size > 0 && (
+              <div className="max-w-md mx-auto mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <p className="text-sm text-gray-700 mb-3">已选择 {selectedBookmarks.size} 个书签</p>
+                <div className="flex gap-2">
+                  <select
+                    value={batchCategory}
+                    onChange={(e) => setBatchCategory(e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400 text-sm"
+                  >
+                    <option value="">选择分类...</option>
+                    {categories.filter(c => c !== '全部').map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={batchUpdateCategory}
+                    disabled={!batchCategory}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white rounded-lg transition-colors text-sm"
+                  >
+                    修改分类
+                  </button>
+                  <button
+                    onClick={() => setSelectedBookmarks(new Set())}
+                    className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm"
+                  >
+                    取消选择
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 设置面板 */}
             {showSettings && (
-              <div className="max-w-md mx-auto mb-8 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl">
+              <div className="max-w-md mx-auto mb-6 p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl">
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">网站设置</h3>
                 <input
                   type="url"
@@ -478,24 +588,9 @@
               </div>
             )}
 
-            <div className="flex justify-center mb-8 gap-2 flex-wrap">
-              {categories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`px-4 py-2 rounded-lg transition-all ${
-                    activeCategory === category
-                      ? 'bg-indigo-600 text-white shadow-md'
-                      : 'bg-white/70 text-gray-700 hover:bg-white hover:shadow-md'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-
+            {/* 添加/编辑书签表单 */}
             {(isAddingBookmark || editingBookmark) && (
-              <div className="max-w-md mx-auto mb-8 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl">
+              <div className="max-w-md mx-auto mb-6 p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl">
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">
                   {editingBookmark ? '编辑书签' : '新建书签'}
                 </h3>
@@ -558,44 +653,57 @@
               </div>
             )}
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {/* 书签网格 */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {filteredBookmarks.map((bookmark) => (
                 <div
                   key={bookmark.id}
-                  className="group relative bg-white/70 backdrop-blur-sm rounded-xl p-5 shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1"
+                  className={`group relative bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md hover:shadow-xl transition-all ${
+                    selectedBookmarks.has(bookmark.id) ? 'ring-2 ring-indigo-500' : ''
+                  }`}
                 >
+                  <div className="absolute top-2 left-2 z-10">
+                    <button
+                      onClick={() => toggleBookmarkSelection(bookmark.id)}
+                      className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
+                        selectedBookmarks.has(bookmark.id)
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-white/50 hover:bg-white text-gray-400 hover:text-gray-600'
+                      }`}
+                    >
+                      {selectedBookmarks.has(bookmark.id) && <CheckIcon />}
+                    </button>
+                  </div>
+                  
                   <a
                     href={bookmark.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block"
                   >
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex flex-col items-center gap-2 mb-2">
                       {bookmark.customIcon ? (
                         <img 
                           src={bookmark.customIcon} 
                           alt={bookmark.title}
-                          className="w-10 h-10 rounded-lg object-cover"
+                          className="w-12 h-12 rounded-lg object-cover"
                         />
                       ) : getFaviconUrl(bookmark.url) ? (
                         <img 
                           src={getFaviconUrl(bookmark.url)} 
                           alt={bookmark.title}
-                          className="w-10 h-10 rounded-lg"
+                          className="w-12 h-12 rounded-lg"
                         />
                       ) : (
-                        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">
+                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-md">
                           {bookmark.title[0]}
                         </div>
                       )}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <ExternalLinkIcon />
-                      </div>
                     </div>
-                    <h3 className="font-medium text-gray-800 truncate">{bookmark.title}</h3>
-                    <p className="text-xs text-gray-500 truncate mt-1">{bookmark.url}</p>
+                    <h3 className="font-medium text-gray-800 truncate text-center text-sm">{bookmark.title}</h3>
                   </a>
-                  <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => startEdit(bookmark)}
                       className="p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
@@ -613,6 +721,7 @@
               ))}
             </div>
 
+            {/* 空状态 */}
             {filteredBookmarks.length === 0 && (
               <div className="text-center py-20">
                 <p className="text-gray-500 text-lg">
@@ -621,8 +730,11 @@
               </div>
             )}
 
-            <div className="mt-16 text-center text-sm text-gray-500">
-              <p>Powered by Cloudflare Pages | Made with ❤️</p>
+            {/* 页脚 */}
+            <div className="mt-12 text-center text-sm text-gray-500">
+              <p>
+                Powered by <a href="https://github.com/lvqopl/onepage" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">onepage</a> | Made by <a href="https://github.com/lvqopl" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">lveopl</a>
+              </p>
             </div>
           </div>
         </div>
