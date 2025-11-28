@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我的标签页</title>
+  <link id="site-icon" rel="icon" href="" type="image/x-icon">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -15,21 +16,14 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, createElement: h } = React;
 
-    // 简化版图标组件
     const SearchIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('circle', { cx: "11", cy: "11", r: "8" }), h('path', { d: "m21 21-4.3-4.3" }));
-    
     const PlusIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M5 12h14" }), h('path', { d: "M12 5v14" }));
-    
     const XIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M18 6 6 18" }), h('path', { d: "m6 6 12 12" }));
-    
     const EditIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" }));
-    
     const TrashIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M3 6h18" }), h('path', { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" }), h('path', { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" }));
-    
     const DownloadIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), h('polyline', { points: "7 10 12 15 17 10" }), h('line', { x1: "12", x2: "12", y1: "15", y2: "3" }));
-    
     const UploadIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), h('polyline', { points: "17 8 12 3 7 8" }), h('line', { x1: "12", x2: "12", y1: "3", y2: "15" }));
-    
+    const SettingsIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), h('circle', { cx: "12", cy: "12", r: "3" }));
     const ExternalLinkIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M15 3h6v6" }), h('path', { d: "M10 14 21 3" }), h('path', { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }));
 
     function StartPage() {
@@ -40,11 +34,15 @@
       const [searchQuery, setSearchQuery] = useState('');
       const [isAddingBookmark, setIsAddingBookmark] = useState(false);
       const [editingBookmark, setEditingBookmark] = useState(null);
-      const [newBookmark, setNewBookmark] = useState({ title: '', url: '', category: '开发', customIcon: '' });
+      const [newBookmark, setNewBookmark] = useState({ title: '', url: '', category: '', customIcon: '' });
       const [currentTime, setCurrentTime] = useState(new Date());
       const [greeting, setGreeting] = useState('');
       const [saveMessage, setSaveMessage] = useState('');
+      const [showSettings, setShowSettings] = useState(false);
+      const [bgImage, setBgImage] = useState('');
+      const [siteIcon, setSiteIcon] = useState('');
       const fileInputRef = useRef(null);
+      const htmlInputRef = useRef(null);
 
       const searchEngines = {
         google: { name: 'Google', url: 'https://www.google.com/search?q=' },
@@ -67,7 +65,44 @@
 
       useEffect(() => {
         loadBookmarks();
+        loadSettings();
       }, []);
+
+      useEffect(() => {
+        if (siteIcon) {
+          document.getElementById('site-icon').href = siteIcon;
+        }
+      }, [siteIcon]);
+
+      const loadSettings = async () => {
+        try {
+          const response = await fetch('/api/settings');
+          if (response.ok) {
+            const data = await response.json();
+            setCategories(data.categories || ['全部', '开发', 'AI', '娱乐', '工具']);
+            setBgImage(data.bgImage || '');
+            setSiteIcon(data.siteIcon || '');
+          }
+        } catch (error) {
+          console.error('加载设置失败:', error);
+        }
+      };
+
+      const saveSettings = async (newCategories, newBgImage, newSiteIcon) => {
+        try {
+          await fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              categories: newCategories,
+              bgImage: newBgImage,
+              siteIcon: newSiteIcon
+            })
+          });
+        } catch (error) {
+          console.error('保存设置失败:', error);
+        }
+      };
 
       const loadBookmarks = async () => {
         try {
@@ -128,20 +163,23 @@
 
       const addBookmark = () => {
         if (newBookmark.title && newBookmark.url) {
+          const category = newBookmark.category || '未分类';
           const bookmark = {
             id: Date.now(),
             ...newBookmark,
-            category: newBookmark.category || '开发'
+            category
           };
           
-          if (!categories.includes(bookmark.category)) {
-            setCategories([...categories, bookmark.category]);
+          if (!categories.includes(category)) {
+            const newCategories = [...categories, category];
+            setCategories(newCategories);
+            saveSettings(newCategories, bgImage, siteIcon);
           }
           
           const updatedBookmarks = [...bookmarks, bookmark];
           setBookmarks(updatedBookmarks);
           saveBookmarks(updatedBookmarks);
-          setNewBookmark({ title: '', url: '', category: '开发', customIcon: '' });
+          setNewBookmark({ title: '', url: '', category: '', customIcon: '' });
           setIsAddingBookmark(false);
         }
       };
@@ -169,7 +207,7 @@
         setBookmarks(updatedBookmarks);
         saveBookmarks(updatedBookmarks);
         setEditingBookmark(null);
-        setNewBookmark({ title: '', url: '', category: '开发', customIcon: '' });
+        setNewBookmark({ title: '', url: '', category: '', customIcon: '' });
       };
 
       const exportBookmarks = () => {
@@ -230,12 +268,76 @@
         event.target.value = '';
       };
 
+      const importHtmlBookmarks = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const htmlContent = e.target.result;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const links = doc.querySelectorAll('a');
+            
+            const imported = Array.from(links).map(link => ({
+              title: link.textContent.trim(),
+              url: link.href,
+              category: '导入',
+              customIcon: ''
+            }));
+
+            const validBookmarks = imported.filter(b => b.title && b.url && b.url.startsWith('http'));
+            const existingUrls = new Set(bookmarks.map(b => b.url));
+            const newBookmarks = validBookmarks.filter(b => !existingUrls.has(b.url));
+            
+            if (newBookmarks.length === 0) {
+              setSaveMessage('⚠ 没有新的书签');
+              return;
+            }
+
+            const bookmarksWithIds = newBookmarks.map(b => ({
+              ...b,
+              id: Date.now() + Math.random()
+            }));
+
+            if (!categories.includes('导入')) {
+              const newCategories = [...categories, '导入'];
+              setCategories(newCategories);
+              saveSettings(newCategories, bgImage, siteIcon);
+            }
+
+            const updatedBookmarks = [...bookmarks, ...bookmarksWithIds];
+            setBookmarks(updatedBookmarks);
+            saveBookmarks(updatedBookmarks);
+            
+            setSaveMessage(`✓ 成功导入 ${newBookmarks.length} 个书签`);
+          } catch (error) {
+            setSaveMessage('✗ HTML 解析失败');
+          }
+        };
+        
+        reader.readAsText(file);
+        event.target.value = '';
+      };
+
+      const applySettings = () => {
+        saveSettings(categories, bgImage, siteIcon);
+        setSaveMessage('✓ 设置已保存');
+        setTimeout(() => setSaveMessage(''), 2000);
+        setShowSettings(false);
+      };
+
       const filteredBookmarks = activeCategory === '全部' 
         ? bookmarks 
         : bookmarks.filter(b => b.category === activeCategory);
 
+      const backgroundStyle = bgImage 
+        ? { backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+        : {};
+
       return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50" style={backgroundStyle}>
           <input
             type="file"
             ref={fileInputRef}
@@ -243,12 +345,21 @@
             accept=".json"
             className="hidden"
           />
+          <input
+            type="file"
+            ref={htmlInputRef}
+            onChange={importHtmlBookmarks}
+            accept=".html"
+            className="hidden"
+          />
 
-          <div className="fixed inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-            <div className="absolute top-40 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute -bottom-32 left-1/2 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{ animationDelay: '4s' }}></div>
-          </div>
+          {!bgImage && (
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+              <div className="absolute top-40 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
+              <div className="absolute -bottom-32 left-1/2 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{ animationDelay: '4s' }}></div>
+            </div>
+          )}
 
           <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
             <div className="text-center mb-12 pt-8">
@@ -305,7 +416,7 @@
                 className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
               >
                 <DownloadIcon />
-                导出
+                导出 JSON
               </button>
               
               <button
@@ -313,9 +424,59 @@
                 className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
               >
                 <UploadIcon />
-                导入
+                导入 JSON
+              </button>
+
+              <button
+                onClick={() => htmlInputRef.current?.click()}
+                className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
+              >
+                <UploadIcon />
+                导入 HTML
+              </button>
+
+              <button
+                onClick={() => setShowSettings(!showSettings)}
+                className="flex items-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl shadow-lg transition-all transform hover:scale-105"
+              >
+                <SettingsIcon />
+                设置
               </button>
             </div>
+
+            {showSettings && (
+              <div className="max-w-md mx-auto mb-8 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl">
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">网站设置</h3>
+                <input
+                  type="url"
+                  placeholder="网站图标 URL"
+                  value={siteIcon}
+                  onChange={(e) => setSiteIcon(e.target.value)}
+                  className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
+                />
+                <input
+                  type="url"
+                  placeholder="背景图片 URL"
+                  value={bgImage}
+                  onChange={(e) => setBgImage(e.target.value)}
+                  className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={applySettings}
+                    className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                  >
+                    保存
+                  </button>
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                  >
+                    取消
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="flex justify-center mb-8 gap-2 flex-wrap">
               {categories.map(category => (
@@ -352,9 +513,19 @@
                   onChange={(e) => setNewBookmark({ ...newBookmark, url: e.target.value })}
                   className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
                 />
+                <select
+                  value={newBookmark.category}
+                  onChange={(e) => setNewBookmark({ ...newBookmark, category: e.target.value })}
+                  className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400 cursor-pointer"
+                >
+                  <option value="">选择或输入新分类...</option>
+                  {categories.filter(c => c !== '全部').map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
                 <input
                   type="text"
-                  placeholder="分类"
+                  placeholder="或输入新分类名称"
                   value={newBookmark.category}
                   onChange={(e) => setNewBookmark({ ...newBookmark, category: e.target.value })}
                   className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
@@ -377,7 +548,7 @@
                     onClick={() => {
                       setIsAddingBookmark(false);
                       setEditingBookmark(null);
-                      setNewBookmark({ title: '', url: '', category: '开发', customIcon: '' });
+                      setNewBookmark({ title: '', url: '', category: '', customIcon: '' });
                     }}
                     className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
                   >
