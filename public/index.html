@@ -11,11 +11,10 @@
 </head>
 <body>
   <div id="root"></div>
-  
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script type="text/babel">
     const { useState, useEffect, useRef, createElement: h } = React;
-
+    
     const SearchIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('circle', { cx: "11", cy: "11", r: "8" }), h('path', { d: "m21 21-4.3-4.3" }));
     const PlusIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M5 12h14" }), h('path', { d: "M12 5v14" }));
     const XIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M18 6 6 18" }), h('path', { d: "m6 6 12 12" }));
@@ -24,7 +23,6 @@
     const DownloadIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), h('polyline', { points: "7 10 12 15 17 10" }), h('line', { x1: "12", x2: "12", y1: "15", y2: "3" }));
     const UploadIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), h('polyline', { points: "17 8 12 3 7 8" }), h('line', { x1: "12", x2: "12", y1: "3", y2: "15" }));
     const SettingsIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), h('circle', { cx: "12", cy: "12", r: "3" }));
-    const ExternalLinkIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M15 3h6v6" }), h('path', { d: "M10 14 21 3" }), h('path', { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }));
     const CheckIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('polyline', { points: "20 6 9 17 4 12" }));
 
     function StartPage() {
@@ -82,7 +80,7 @@
           await fetch('/api/settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               categories: newCategories,
               bgImage: newBgImage,
               siteIcon: newSiteIcon
@@ -192,7 +190,7 @@
       const batchUpdateCategory = () => {
         if (!batchCategory || selectedBookmarks.size === 0) return;
         
-        const updatedBookmarks = bookmarks.map(b => 
+        const updatedBookmarks = bookmarks.map(b =>
           selectedBookmarks.has(b.id) ? { ...b, category: batchCategory } : b
         );
         
@@ -210,6 +208,19 @@
         setTimeout(() => setSaveMessage(''), 2000);
       };
 
+      const batchDeleteBookmarks = () => {
+        if (selectedBookmarks.size === 0) return;
+        
+        if (confirm(`确定要删除选中的 ${selectedBookmarks.size} 个书签吗？此操作不可恢复。`)) {
+          const updatedBookmarks = bookmarks.filter(b => !selectedBookmarks.has(b.id));
+          setBookmarks(updatedBookmarks);
+          saveBookmarks(updatedBookmarks);
+          setSelectedBookmarks(new Set());
+          setSaveMessage(`✓ 已删除 ${selectedBookmarks.size} 个书签`);
+          setTimeout(() => setSaveMessage(''), 2000);
+        }
+      };
+
       const deleteCategory = (category) => {
         if (category === '全部') {
           setSaveMessage('✗ 无法删除"全部"分类');
@@ -218,7 +229,7 @@
         }
         
         if (confirm(`确定要删除分类"${category}"吗？该分类下的书签将移至"未分类"。`)) {
-          const updatedBookmarks = bookmarks.map(b => 
+          const updatedBookmarks = bookmarks.map(b =>
             b.category === category ? { ...b, category: '未分类' } : b
           );
           
@@ -243,16 +254,16 @@
 
       const startEdit = (bookmark) => {
         setEditingBookmark(bookmark);
-        setNewBookmark({ 
-          title: bookmark.title, 
-          url: bookmark.url, 
+        setNewBookmark({
+          title: bookmark.title,
+          url: bookmark.url,
           category: bookmark.category,
           customIcon: bookmark.customIcon || ''
         });
       };
 
       const saveEdit = () => {
-        const updatedBookmarks = bookmarks.map(b => 
+        const updatedBookmarks = bookmarks.map(b =>
           b.id === editingBookmark.id ? { ...editingBookmark, ...newBookmark } : b
         );
         setBookmarks(updatedBookmarks);
@@ -379,11 +390,11 @@
         setShowSettings(false);
       };
 
-      const filteredBookmarks = activeCategory === '全部' 
-        ? bookmarks 
+      const filteredBookmarks = activeCategory === '全部'
+        ? bookmarks
         : bookmarks.filter(b => b.category === activeCategory);
 
-      const backgroundStyle = bgImage 
+      const backgroundStyle = bgImage
         ? { backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
         : {};
 
@@ -421,11 +432,10 @@
               </div>
             )}
 
-            {/* 分类标签 - 移到顶部 */}
             <div className="mb-6">
-              <div className="flex justify-between items-center gap-2 flex-wrap">
+              <div className="flex justify-start items-center gap-2 flex-wrap">
                 {categories.map(category => (
-                  <div key={category} className="flex items-center gap-1">
+                  <div key={category} className="relative group">
                     <button
                       onClick={() => setActiveCategory(category)}
                       className={`px-4 py-2 rounded-lg transition-all ${
@@ -439,7 +449,7 @@
                     {category !== '全部' && (
                       <button
                         onClick={() => deleteCategory(category)}
-                        className="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                         title="删除分类"
                       >
                         <XIcon />
@@ -450,7 +460,6 @@
               </div>
             </div>
 
-            {/* 搜索框 */}
             <div className="mb-6">
               <div className="max-w-2xl mx-auto">
                 <div className="relative">
@@ -478,7 +487,6 @@
               </div>
             </div>
 
-            {/* 操作按钮 */}
             <div className="flex justify-center mb-6 gap-2 flex-wrap">
               <button
                 onClick={() => setIsAddingBookmark(!isAddingBookmark)}
@@ -521,17 +529,16 @@
               </button>
             </div>
 
-            {/* 批量操作 */}
             {selectedBookmarks.size > 0 && (
-              <div className="max-w-md mx-auto mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+              <div className="max-w-2xl mx-auto mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
                 <p className="text-sm text-gray-700 mb-3">已选择 {selectedBookmarks.size} 个书签</p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <select
                     value={batchCategory}
                     onChange={(e) => setBatchCategory(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400 text-sm"
+                    className="flex-1 min-w-[150px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400 text-sm"
                   >
-                    <option value="">选择分类...</option>
+                     <option value="">选择分类...</option>
                     {categories.filter(c => c !== '全部').map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
@@ -544,6 +551,12 @@
                     修改分类
                   </button>
                   <button
+                    onClick={batchDeleteBookmarks}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm"
+                  >
+                    删除选中
+                  </button>
+                  <button
                     onClick={() => setSelectedBookmarks(new Set())}
                     className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm"
                   >
@@ -553,7 +566,6 @@
               </div>
             )}
 
-            {/* 设置面板 */}
             {showSettings && (
               <div className="max-w-md mx-auto mb-6 p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl">
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">网站设置</h3>
@@ -588,7 +600,6 @@
               </div>
             )}
 
-            {/* 添加/编辑书签表单 */}
             {(isAddingBookmark || editingBookmark) && (
               <div className="max-w-md mx-auto mb-6 p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl">
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">
@@ -653,7 +664,6 @@
               </div>
             )}
 
-            {/* 书签网格 */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {filteredBookmarks.map((bookmark) => (
                 <div
@@ -683,14 +693,14 @@
                   >
                     <div className="flex flex-col items-center gap-2 mb-2">
                       {bookmark.customIcon ? (
-                        <img 
-                          src={bookmark.customIcon} 
+                        <img
+                          src={bookmark.customIcon}
                           alt={bookmark.title}
                           className="w-12 h-12 rounded-lg object-cover"
                         />
                       ) : getFaviconUrl(bookmark.url) ? (
-                        <img 
-                          src={getFaviconUrl(bookmark.url)} 
+                        <img
+                          src={getFaviconUrl(bookmark.url)}
                           alt={bookmark.title}
                           className="w-12 h-12 rounded-lg"
                         />
@@ -721,7 +731,6 @@
               ))}
             </div>
 
-            {/* 空状态 */}
             {filteredBookmarks.length === 0 && (
               <div className="text-center py-20">
                 <p className="text-gray-500 text-lg">
@@ -730,7 +739,6 @@
               </div>
             )}
 
-            {/* 页脚 */}
             <div className="mt-12 text-center text-sm text-gray-500">
               <p>
                 Powered by <a href="https://github.com/lvqopl/onepage" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">onepage</a> | Made by <a href="https://github.com/lvqopl" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">lveopl</a>
