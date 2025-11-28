@@ -3,35 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的标签页 - Cloudflare Pages</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <title>我的标签页</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    @keyframes pulse {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 0.5; }
-    }
-  </style>
 </head>
 <body>
   <div id="root"></div>
+  
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
-    const { Search, Plus, X, Edit2, Trash2, ExternalLink, Cloud, Sparkles, Download, Upload } = lucide;
+    const { useState, useEffect } = React;
 
     function StartPage() {
-      // 将之前的 React 组件代码完整复制到这里
-      // ... (所有的 state 和函数)
-      
+      const [bookmarks, setBookmarks] = useState([
+        { id: 1, title: 'GitHub', url: 'https://github.com', category: '开发' },
+        { id: 2, title: 'Google', url: 'https://google.com', category: '搜索' }
+      ]);
+      const [currentTime, setCurrentTime] = useState(new Date());
+
+      useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+      }, []);
+
       return (
-        // ... JSX 代码
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h1 className="text-4xl font-bold text-gray-800 mb-4">我的标签页</h1>
+              <p className="text-3xl text-gray-700">
+                {currentTime.toLocaleTimeString('zh-CN')}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {bookmarks.map(bookmark => (
+                <a
+                  key={bookmark.id}
+                  href={bookmark.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all"
+                >
+                  <div className="w-12 h-12 bg-indigo-600 rounded-lg mb-3 flex items-center justify-center text-white text-xl font-bold">
+                    {bookmark.title[0]}
+                  </div>
+                  <h3 className="font-medium text-gray-800">{bookmark.title}</h3>
+                  <p className="text-sm text-gray-500 truncate">{bookmark.url}</p>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
       );
     }
 
     ReactDOM.render(<StartPage />, document.getElementById('root'));
   </script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </body>
 </html>
