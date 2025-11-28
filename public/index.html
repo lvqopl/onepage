@@ -26,6 +26,11 @@
     const CheckIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('polyline', { points: "20 6 9 17 4 12" }));
 
     function StartPage() {
+      const [isAuthenticated, setIsAuthenticated] = useState(false);
+      const [showLoginModal, setShowLoginModal] = useState(false);
+      const [loginPassword, setLoginPassword] = useState('');
+      const [loginError, setLoginError] = useState('');
+      
       const [bookmarks, setBookmarks] = useState([]);
       const [categories, setCategories] = useState(['全部', '开发', 'AI', '娱乐', '工具']);
       const [activeCategory, setActiveCategory] = useState('全部');
@@ -54,6 +59,7 @@
       };
 
       useEffect(() => {
+        checkAuth();
         loadBookmarks();
         loadSettings();
       }, []);
@@ -63,6 +69,56 @@
           document.getElementById('site-icon').href = siteIcon;
         }
       }, [siteIcon]);
+
+      const checkAuth = async () => {
+        try {
+          const response = await fetch('/api/auth');
+          if (response.ok) {
+            const data = await response.json();
+            setIsAuthenticated(data.authenticated);
+          }
+        } catch (error) {
+          console.error('检查认证失败:', error);
+        }
+      };
+
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoginError('');
+        
+        try {
+          const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: loginPassword })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            setIsAuthenticated(true);
+            setShowLoginModal(false);
+            setLoginPassword('');
+            setSaveMessage('✓ 登录成功');
+            setTimeout(() => setSaveMessage(''), 2000);
+          } else {
+            setLoginError(data.message || '登录失败');
+          }
+        } catch (error) {
+          setLoginError('登录请求失败');
+        }
+      };
+
+      const handleLogout = async () => {
+        try {
+          await fetch('/api/auth', { method: 'DELETE' });
+          setIsAuthenticated(false);
+          setSaveMessage('✓ 已退出登录');
+          setTimeout(() => setSaveMessage(''), 2000);
+        } catch (error) {
+          console.error('退出登录失败:', error);
+        }
+      };
 
       const loadSettings = async () => {
         try {
@@ -151,15 +207,20 @@
         }
       };
 
-      // 拖拽开始
       const handleDragStart = (e, bookmark, index) => {
+        if (!isAuthenticated) {
+          e.preventDefault();
+          setShowLoginModal(true);
+          setSaveMessage('⚠ 需要管理员权限才能拖动书签');
+          setTimeout(() => setSaveMessage(''), 2000);
+          return;
+        }
         e.stopPropagation();
         setDraggedBookmark({ bookmark, index });
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/html', e.target);
       };
 
-      // 拖拽经过书签
       const handleDragOver = (e, index) => {
         e.preventDefault();
         e.stopPropagation();
@@ -167,7 +228,6 @@
         setDragOverCategory(null);
       };
 
-      // 拖拽经过分类
       const handleCategoryDragOver = (e, category) => {
         e.preventDefault();
         e.stopPropagation();
@@ -175,7 +235,6 @@
         setDragOverIndex(null);
       };
 
-      // 放置到书签位置 - 排序
       const handleDrop = (e, targetIndex) => {
         e.preventDefault();
         e.stopPropagation();
@@ -194,7 +253,6 @@
         setDragOverIndex(null);
       };
 
-      // 放置到分类 - 更改类别
       const handleCategoryDrop = (e, category) => {
         e.preventDefault();
         e.stopPropagation();
@@ -243,12 +301,24 @@
       };
 
       const deleteBookmark = (id) => {
+        if (!isAuthenticated) {
+          setShowLoginModal(true);
+          setSaveMessage('⚠ 需要管理员权限');
+          setTimeout(() => setSaveMessage(''), 2000);
+          return;
+        }
         const updatedBookmarks = bookmarks.filter(b => b.id !== id);
         setBookmarks(updatedBookmarks);
         saveBookmarks(updatedBookmarks);
       };
 
       const toggleBookmarkSelection = (id) => {
+        if (!isAuthenticated) {
+          setShowLoginModal(true);
+          setSaveMessage('⚠ 需要管理员权限');
+          setTimeout(() => setSaveMessage(''), 2000);
+          return;
+        }
         const newSelected = new Set(selectedBookmarks);
         if (newSelected.has(id)) {
           newSelected.delete(id);
@@ -293,6 +363,12 @@
       };
 
       const deleteCategory = (category) => {
+        if (!isAuthenticated) {
+          setShowLoginModal(true);
+          setSaveMessage('⚠ 需要管理员权限');
+          setTimeout(() => setSaveMessage(''), 2000);
+          return;
+        }
         if (category === '全部') {
           setSaveMessage('✗ 无法删除"全部"分类');
           setTimeout(() => setSaveMessage(''), 2000);
@@ -324,6 +400,12 @@
       };
 
       const startEdit = (bookmark) => {
+        if (!isAuthenticated) {
+          setShowLoginModal(true);
+          setSaveMessage('⚠ 需要管理员权限');
+          setTimeout(() => setSaveMessage(''), 2000);
+          return;
+        }
         setEditingBookmark(bookmark);
         setNewBookmark({
           title: bookmark.title,
@@ -503,6 +585,46 @@
               </div>
             )}
 
+            {showLoginModal && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowLoginModal(false)}>
+                <div className="bg-white rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">管理员登录</h3>
+                  <form onSubmit={handleLogin}>
+                    <input
+                      type="password"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      placeholder="请输入管理员密码"
+                      className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
+                      autoFocus
+                    />
+                    {loginError && (
+                      <p className="text-red-500 text-sm mb-3">{loginError}</p>
+                    )}
+                    <div className="flex gap-3">
+                      <button
+                        type="submit"
+                        className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                      >
+                        登录
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowLoginModal(false);
+                          setLoginPassword('');
+                          setLoginError('');
+                        }}
+                        className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
             <div className="mb-6">
               <div className="flex justify-center items-center gap-2 flex-wrap">
                 {categories.map(category => (
@@ -566,7 +688,13 @@
 
             <div className="flex justify-center mb-6 gap-2 flex-wrap">
               <button
-                onClick={() => setIsAddingBookmark(!isAddingBookmark)}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    setShowLoginModal(true);
+                    return;
+                  }
+                  setIsAddingBookmark(!isAddingBookmark);
+                }}
                 className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
               >
                 {isAddingBookmark ? <XIcon /> : <PlusIcon />}
@@ -582,7 +710,15 @@
               </button>
               
               <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    setShowLoginModal(true);
+                    setSaveMessage('⚠ 需要管理员权限');
+                    setTimeout(() => setSaveMessage(''), 2000);
+                    return;
+                  }
+                  fileInputRef.current?.click();
+                }}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
               >
                 <UploadIcon />
@@ -590,7 +726,15 @@
               </button>
 
               <button
-                onClick={() => htmlInputRef.current?.click()}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    setShowLoginModal(true);
+                    setSaveMessage('⚠ 需要管理员权限');
+                    setTimeout(() => setSaveMessage(''), 2000);
+                    return;
+                  }
+                  htmlInputRef.current?.click();
+                }}
                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
               >
                 <UploadIcon />
@@ -598,12 +742,34 @@
               </button>
 
               <button
-                onClick={() => setShowSettings(!showSettings)}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    setShowLoginModal(true);
+                    return;
+                  }
+                  setShowSettings(!showSettings);
+                }}
                 className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
               >
                 <SettingsIcon />
                 设置
               </button>
+
+              {isAuthenticated ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
+                >
+                  退出管理
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
+                >
+                  管理员登录
+                </button>
+              )}
             </div>
 
             {selectedBookmarks.size > 0 && (
@@ -745,12 +911,12 @@
               {filteredBookmarks.map((bookmark, index) => (
                 <div
                   key={bookmark.id}
-                  draggable
+                  draggable={isAuthenticated}
                   onDragStart={(e) => handleDragStart(e, bookmark, index)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragEnd={handleDragEnd}
-                  className={`group relative bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md hover:shadow-xl transition-all cursor-move ${
+                  className={`group relative bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md hover:shadow-xl transition-all ${isAuthenticated ? 'cursor-move' : ''} ${
                     selectedBookmarks.has(bookmark.id) ? 'ring-2 ring-indigo-500' : ''
                   } ${dragOverIndex === index ? 'ring-2 ring-blue-500 scale-105' : ''}`}
                 >
@@ -796,20 +962,22 @@
                     <h3 className="font-medium text-gray-800 truncate text-center text-sm">{bookmark.title}</h3>
                   </a>
                   
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => startEdit(bookmark)}
-                      className="p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      onClick={() => deleteBookmark(bookmark.id)}
-                      className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </div>
+                  {isAuthenticated && (
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => startEdit(bookmark)}
+                        className="p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                      >
+                        <EditIcon />
+                      </button>
+                      <button
+                        onClick={() => deleteBookmark(bookmark.id)}
+                        className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -824,7 +992,7 @@
 
             <div className="mt-12 text-center text-sm text-gray-500">
               <p>
-                Powered by <a href="https://github.com/lvqopl/onepage" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">onepage</a> | Made by <a href="https://github.com/lvqopl" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">lvqopl</a>
+                Powered by <a href="https://github.com/lvqopl/onepage" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">onepage</a> | Made by <a href="https://github.com/lvqopl" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">lveopl</a>
               </p>
             </div>
           </div>
