@@ -436,7 +436,7 @@
             <div className="mb-6">
               <div className="flex justify-between items-center gap-2 flex-wrap">
                 {categories.map(category => (
-                  <div key={category} className="flex items-center gap-1">
+                  <div key={category} className="relative group">
                     <button
                       onClick={() => setActiveCategory(category)}
                       className={`px-4 py-2 rounded-lg transition-all ${
@@ -450,12 +450,14 @@
                     {category !== '全部' && (
                       <button
                         onClick={() => deleteCategory(category)}
-                        className="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                         title="删除分类"
                       >
                         <XIcon />
                       </button>
                     )}
+                  </div>
+                ))}
                   </div>
                 ))}
               </div>
