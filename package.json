@@ -1,0 +1,12 @@
+{
+  "name": "cloudflare-startpage",
+  "version": "1.0.0",
+  "description": "精美的书签标签页",
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public"
+  },
+  "keywords": ["bookmarks", "startpage", "cloudflare"],
+  "author": "",
+  "license": "MIT"
+}
