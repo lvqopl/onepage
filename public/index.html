@@ -40,6 +40,9 @@
       const [siteIcon, setSiteIcon] = useState('');
       const [selectedBookmarks, setSelectedBookmarks] = useState(new Set());
       const [batchCategory, setBatchCategory] = useState('');
+      const [draggedBookmark, setDraggedBookmark] = useState(null);
+      const [dragOverIndex, setDragOverIndex] = useState(null);
+      const [dragOverCategory, setDragOverCategory] = useState(null);
       const fileInputRef = useRef(null);
       const htmlInputRef = useRef(null);
 
@@ -146,6 +149,74 @@
           window.open(`${engine.url}${encodeURIComponent(searchQuery)}`, '_blank');
           setSearchQuery('');
         }
+      };
+
+      // 拖拽开始
+      const handleDragStart = (e, bookmark, index) => {
+        e.stopPropagation();
+        setDraggedBookmark({ bookmark, index });
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', e.target);
+      };
+
+      // 拖拽经过书签
+      const handleDragOver = (e, index) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOverIndex(index);
+        setDragOverCategory(null);
+      };
+
+      // 拖拽经过分类
+      const handleCategoryDragOver = (e, category) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOverCategory(category);
+        setDragOverIndex(null);
+      };
+
+      // 放置到书签位置 - 排序
+      const handleDrop = (e, targetIndex) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (!draggedBookmark) return;
+
+        const updatedBookmarks = [...bookmarks];
+        const { bookmark, index: sourceIndex } = draggedBookmark;
+        
+        updatedBookmarks.splice(sourceIndex, 1);
+        updatedBookmarks.splice(targetIndex, 0, bookmark);
+        
+        setBookmarks(updatedBookmarks);
+        saveBookmarks(updatedBookmarks);
+        setDraggedBookmark(null);
+        setDragOverIndex(null);
+      };
+
+      // 放置到分类 - 更改类别
+      const handleCategoryDrop = (e, category) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (!draggedBookmark || category === '全部') return;
+
+        const updatedBookmarks = bookmarks.map(b =>
+          b.id === draggedBookmark.bookmark.id ? { ...b, category } : b
+        );
+        
+        setBookmarks(updatedBookmarks);
+        saveBookmarks(updatedBookmarks);
+        setDraggedBookmark(null);
+        setDragOverCategory(null);
+        setSaveMessage(`✓ 已移动到"${category}"分类`);
+        setTimeout(() => setSaveMessage(''), 2000);
+      };
+
+      const handleDragEnd = () => {
+        setDraggedBookmark(null);
+        setDragOverIndex(null);
+        setDragOverCategory(null);
       };
 
       const addBookmark = () => {
@@ -435,14 +506,19 @@
             <div className="mb-6">
               <div className="flex justify-center items-center gap-2 flex-wrap">
                 {categories.map(category => (
-                  <div key={category} className="relative group">
+                  <div
+                    key={category}
+                    className="relative group"
+                    onDragOver={(e) => handleCategoryDragOver(e, category)}
+                    onDrop={(e) => handleCategoryDrop(e, category)}
+                  >
                     <button
                       onClick={() => setActiveCategory(category)}
                       className={`px-4 py-2 rounded-lg transition-all ${
                         activeCategory === category
                           ? 'bg-indigo-600 text-white shadow-md'
                           : 'bg-white/70 text-gray-700 hover:bg-white hover:shadow-md'
-                      }`}
+                      } ${dragOverCategory === category ? 'ring-2 ring-green-500 scale-105' : ''}`}
                     >
                       {category}
                     </button>
@@ -458,6 +534,7 @@
                   </div>
                 ))}
               </div>
+              <p className="text-center text-xs text-gray-500 mt-2">💡 提示: 拖动书签到分类标签可快速更改分类</p>
             </div>
 
             <div className="mb-6">
@@ -538,7 +615,7 @@
                     onChange={(e) => setBatchCategory(e.target.value)}
                     className="flex-1 min-w-[150px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400 text-sm"
                   >
-                     <option value="">选择分类...</option>
+                    <option value="">选择分类...</option>
                     {categories.filter(c => c !== '全部').map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
@@ -665,12 +742,17 @@
             )}
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {filteredBookmarks.map((bookmark) => (
+              {filteredBookmarks.map((bookmark, index) => (
                 <div
                   key={bookmark.id}
-                  className={`group relative bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md hover:shadow-xl transition-all ${
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, bookmark, index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                  className={`group relative bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-md hover:shadow-xl transition-all cursor-move ${
                     selectedBookmarks.has(bookmark.id) ? 'ring-2 ring-indigo-500' : ''
-                  }`}
+                  } ${dragOverIndex === index ? 'ring-2 ring-blue-500 scale-105' : ''}`}
                 >
                   <div className="absolute top-2 left-2 z-10">
                     <button
@@ -690,6 +772,7 @@
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex flex-col items-center gap-2 mb-2">
                       {bookmark.customIcon ? (
