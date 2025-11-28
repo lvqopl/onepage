@@ -6,12 +6,13 @@
   <title>我的标签页</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
   <div id="root"></div>
   
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
     const { Search, Plus, X, Edit2, Trash2, ExternalLink, Cloud, Sparkles, Download, Upload } = lucide;
@@ -461,9 +462,9 @@
       );
     }
 
-    ReactDOM.render(<StartPage />, document.getElementById('root'));
+    // 关键修复：使用 React 18 的 createRoot API
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<StartPage />);
   </script>
-  
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </body>
 </html>
