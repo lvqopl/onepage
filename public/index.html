@@ -239,6 +239,17 @@
           setSaveMessage('✓ 分类已删除');
           setTimeout(() => setSaveMessage(''), 2000);
         }
+        const batchDeleteBookmarks = () => {
+          if (selectedBookmarks.size === 0) return;
+          
+          if (confirm(`确定要删除选中的 ${selectedBookmarks.size} 个书签吗？此操作不可恢复。`)) {
+            const updatedBookmarks = bookmarks.filter(b => !selectedBookmarks.has(b.id));
+            setBookmarks(updatedBookmarks);
+            saveBookmarks(updatedBookmarks);
+            setSelectedBookmarks(new Set());
+            setSaveMessage(`✓ 已删除 ${selectedBookmarks.size} 个书签`);
+            setTimeout(() => setSaveMessage(''), 2000);
+  }
       };
 
       const startEdit = (bookmark) => {
@@ -522,36 +533,42 @@
             </div>
 
             {/* 批量操作 */}
-            {selectedBookmarks.size > 0 && (
-              <div className="max-w-md mx-auto mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <p className="text-sm text-gray-700 mb-3">已选择 {selectedBookmarks.size} 个书签</p>
-                <div className="flex gap-2">
-                  <select
-                    value={batchCategory}
-                    onChange={(e) => setBatchCategory(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400 text-sm"
-                  >
-                    <option value="">选择分类...</option>
-                    {categories.filter(c => c !== '全部').map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={batchUpdateCategory}
-                    disabled={!batchCategory}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white rounded-lg transition-colors text-sm"
-                  >
-                    修改分类
-                  </button>
-                  <button
-                    onClick={() => setSelectedBookmarks(new Set())}
-                    className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm"
-                  >
-                    取消选择
-                  </button>
-                </div>
-              </div>
-            )}
+{selectedBookmarks.size > 0 && (
+  <div className="max-w-2xl mx-auto mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+    <p className="text-sm text-gray-700 mb-3">已选择 {selectedBookmarks.size} 个书签</p>
+    <div className="flex gap-2 flex-wrap">
+      <select
+        value={batchCategory}
+        onChange={(e) => setBatchCategory(e.target.value)}
+        className="flex-1 min-w-[150px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400 text-sm"
+      >
+        <option value="">选择分类...</option>
+        {categories.filter(c => c !== '全部').map(cat => (
+          <option key={cat} value={cat}>{cat}</option>
+        ))}
+      </select>
+      <button
+        onClick={batchUpdateCategory}
+        disabled={!batchCategory}
+        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white rounded-lg transition-colors text-sm"
+      >
+        修改分类
+      </button>
+      <button
+        onClick={batchDeleteBookmarks}
+        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm"
+      >
+        删除选中
+      </button>
+      <button
+        onClick={() => setSelectedBookmarks(new Set())}
+        className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm"
+      >
+        取消选择
+      </button>
+    </div>
+  </div>
+)}
 
             {/* 设置面板 */}
             {showSettings && (
