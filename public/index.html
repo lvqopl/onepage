@@ -190,9 +190,6 @@
       const handleDragStart = (e, bookmark, index) => {
         if (!isAuthenticated) {
           e.preventDefault();
-          setShowLoginModal(true);
-          setSaveMessage('⚠ 需要管理员权限才能拖动书签');
-          setTimeout(() => setSaveMessage(''), 2000);
           return;
         }
         e.stopPropagation();
@@ -201,18 +198,21 @@
         e.dataTransfer.setData('text/html', e.target);
       };
       const handleDragOver = (e, index) => {
+        if (!isAuthenticated) return;
         e.preventDefault();
         e.stopPropagation();
         setDragOverIndex(index);
         setDragOverCategory(null);
       };
       const handleCategoryDragOver = (e, category) => {
+        if (!isAuthenticated) return;
         e.preventDefault();
         e.stopPropagation();
         setDragOverCategory(category);
         setDragOverIndex(null);
       };
       const handleDrop = (e, targetIndex) => {
+        if (!isAuthenticated) return;
         e.preventDefault();
         e.stopPropagation();
         if (!draggedBookmark) return;
@@ -226,6 +226,7 @@
         setDragOverIndex(null);
       };
       const handleCategoryDrop = (e, category) => {
+        if (!isAuthenticated) return;
         e.preventDefault();
         e.stopPropagation();
         if (!draggedBookmark || category === '全部') return;
@@ -367,7 +368,6 @@
       const saveEdit = () => {
         const category = newBookmark.category || '未分类';
         
-        // 修复：如果是新分类，添加到分类列表
         if (!categories.includes(category) && category !== '') {
           const newCategories = [...categories, category];
           setCategories(newCategories);
@@ -522,12 +522,12 @@
                 <div className="bg-white rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
                   <h3 className="text-xl font-semibold mb-4 text-gray-800">管理员登录</h3>
                   <form onSubmit={handleLogin}>
-                                        <input
+                    <input
                       type="password"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       placeholder="请输入管理员密码"
-                      className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
+                           className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
                       autoFocus
                     />
                     {loginError && (
@@ -912,7 +912,7 @@
             )}
             <div className="mt-12 text-center text-sm text-gray-500">
               <p>
-                Powered by <a href="https://github.com/lvqopl/onepage" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">onepage</a> | Made by <a href="https://github.com/lvqopl" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">lveopl</a>
+                Powered by <a href="https://github.com/lvqopl/onepage" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">onepage</a> | Made by <a href="https://github.com/lvqopl" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">lvqopl</a>
               </p>
             </div>
           </div>
