@@ -14,7 +14,6 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script type="text/babel">
     const { useState, useEffect, useRef, createElement: h } = React;
-    
     const SearchIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('circle', { cx: "11", cy: "11", r: "8" }), h('path', { d: "m21 21-4.3-4.3" }));
     const PlusIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M5 12h14" }), h('path', { d: "M12 5v14" }));
     const XIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M18 6 6 18" }), h('path', { d: "m6 6 12 12" }));
@@ -24,13 +23,11 @@
     const UploadIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), h('polyline', { points: "17 8 12 3 7 8" }), h('line', { x1: "12", x2: "12", y1: "3", y2: "15" }));
     const SettingsIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('path', { d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), h('circle', { cx: "12", cy: "12", r: "3" }));
     const CheckIcon = () => h('svg', { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, h('polyline', { points: "20 6 9 17 4 12" }));
-
     function StartPage() {
       const [isAuthenticated, setIsAuthenticated] = useState(false);
       const [showLoginModal, setShowLoginModal] = useState(false);
       const [loginPassword, setLoginPassword] = useState('');
       const [loginError, setLoginError] = useState('');
-      
       const [bookmarks, setBookmarks] = useState([]);
       const [categories, setCategories] = useState(['全部', '开发', 'AI', '娱乐', '工具']);
       const [activeCategory, setActiveCategory] = useState('全部');
@@ -50,26 +47,22 @@
       const [dragOverCategory, setDragOverCategory] = useState(null);
       const fileInputRef = useRef(null);
       const htmlInputRef = useRef(null);
-
       const searchEngines = {
         google: { name: 'Google', url: 'https://www.google.com/search?q=' },
         bing: { name: 'Bing', url: 'https://www.bing.com/search?q=' },
         baidu: { name: '百度', url: 'https://www.baidu.com/s?wd=' },
         duckduckgo: { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' }
       };
-
       useEffect(() => {
         checkAuth();
         loadBookmarks();
         loadSettings();
       }, []);
-
       useEffect(() => {
         if (siteIcon) {
           document.getElementById('site-icon').href = siteIcon;
         }
       }, [siteIcon]);
-
       const checkAuth = async () => {
         try {
           const response = await fetch('/api/auth');
@@ -81,20 +74,16 @@
           console.error('检查认证失败:', error);
         }
       };
-
       const handleLogin = async (e) => {
         e.preventDefault();
         setLoginError('');
-        
         try {
           const response = await fetch('/api/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password: loginPassword })
           });
-          
           const data = await response.json();
-          
           if (data.success) {
             setIsAuthenticated(true);
             setShowLoginModal(false);
@@ -108,7 +97,6 @@
           setLoginError('登录请求失败');
         }
       };
-
       const handleLogout = async () => {
         try {
           await fetch('/api/auth', { method: 'DELETE' });
@@ -119,7 +107,6 @@
           console.error('退出登录失败:', error);
         }
       };
-
       const loadSettings = async () => {
         try {
           const response = await fetch('/api/settings');
@@ -133,7 +120,6 @@
           console.error('加载设置失败:', error);
         }
       };
-
       const saveSettings = async (newCategories, newBgImage, newSiteIcon) => {
         try {
           await fetch('/api/settings', {
@@ -149,7 +135,6 @@
           console.error('保存设置失败:', error);
         }
       };
-
       const loadBookmarks = async () => {
         try {
           const response = await fetch('/api/bookmarks');
@@ -163,7 +148,6 @@
           setBookmarks(getDefaultBookmarks());
         }
       };
-
       const getDefaultBookmarks = () => [
         { id: 1, title: 'GitHub', url: 'https://github.com', category: '开发', customIcon: '' },
         { id: 2, title: 'Stack Overflow', url: 'https://stackoverflow.com', category: '开发', customIcon: '' },
@@ -174,7 +158,6 @@
         { id: 7, title: 'Netflix', url: 'https://netflix.com', category: '娱乐', customIcon: '' },
         { id: 8, title: 'Gmail', url: 'https://mail.google.com', category: '工具', customIcon: '' },
       ];
-
       const saveBookmarks = async (newBookmarks) => {
         try {
           await fetch('/api/bookmarks', {
@@ -188,7 +171,6 @@
           setSaveMessage('✗ 保存失败');
         }
       };
-
       const getFaviconUrl = (url) => {
         try {
           const domain = new URL(url).hostname;
@@ -197,7 +179,6 @@
           return null;
         }
       };
-
       const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
@@ -206,7 +187,6 @@
           setSearchQuery('');
         }
       };
-
       const handleDragStart = (e, bookmark, index) => {
         if (!isAuthenticated) {
           e.preventDefault();
@@ -220,49 +200,38 @@
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/html', e.target);
       };
-
       const handleDragOver = (e, index) => {
         e.preventDefault();
         e.stopPropagation();
         setDragOverIndex(index);
         setDragOverCategory(null);
       };
-
       const handleCategoryDragOver = (e, category) => {
         e.preventDefault();
         e.stopPropagation();
         setDragOverCategory(category);
         setDragOverIndex(null);
       };
-
       const handleDrop = (e, targetIndex) => {
         e.preventDefault();
         e.stopPropagation();
-        
         if (!draggedBookmark) return;
-
         const updatedBookmarks = [...bookmarks];
         const { bookmark, index: sourceIndex } = draggedBookmark;
-        
         updatedBookmarks.splice(sourceIndex, 1);
         updatedBookmarks.splice(targetIndex, 0, bookmark);
-        
         setBookmarks(updatedBookmarks);
         saveBookmarks(updatedBookmarks);
         setDraggedBookmark(null);
         setDragOverIndex(null);
       };
-
       const handleCategoryDrop = (e, category) => {
         e.preventDefault();
         e.stopPropagation();
-        
         if (!draggedBookmark || category === '全部') return;
-
         const updatedBookmarks = bookmarks.map(b =>
           b.id === draggedBookmark.bookmark.id ? { ...b, category } : b
         );
-        
         setBookmarks(updatedBookmarks);
         saveBookmarks(updatedBookmarks);
         setDraggedBookmark(null);
@@ -270,13 +239,11 @@
         setSaveMessage(`✓ 已移动到"${category}"分类`);
         setTimeout(() => setSaveMessage(''), 2000);
       };
-
       const handleDragEnd = () => {
         setDraggedBookmark(null);
         setDragOverIndex(null);
         setDragOverCategory(null);
       };
-
       const addBookmark = () => {
         if (newBookmark.title && newBookmark.url) {
           const category = newBookmark.category || '未分类';
@@ -285,13 +252,11 @@
             ...newBookmark,
             category
           };
-          
           if (!categories.includes(category)) {
             const newCategories = [...categories, category];
             setCategories(newCategories);
             saveSettings(newCategories, bgImage, siteIcon);
           }
-          
           const updatedBookmarks = [...bookmarks, bookmark];
           setBookmarks(updatedBookmarks);
           saveBookmarks(updatedBookmarks);
@@ -299,7 +264,6 @@
           setIsAddingBookmark(false);
         }
       };
-
       const deleteBookmark = (id) => {
         if (!isAuthenticated) {
           setShowLoginModal(true);
@@ -311,7 +275,6 @@
         setBookmarks(updatedBookmarks);
         saveBookmarks(updatedBookmarks);
       };
-
       const toggleBookmarkSelection = (id) => {
         if (!isAuthenticated) {
           setShowLoginModal(true);
@@ -327,20 +290,16 @@
         }
         setSelectedBookmarks(newSelected);
       };
-
       const batchUpdateCategory = () => {
         if (!batchCategory || selectedBookmarks.size === 0) return;
-        
         const updatedBookmarks = bookmarks.map(b =>
           selectedBookmarks.has(b.id) ? { ...b, category: batchCategory } : b
         );
-        
         if (!categories.includes(batchCategory)) {
           const newCategories = [...categories, batchCategory];
           setCategories(newCategories);
           saveSettings(newCategories, bgImage, siteIcon);
         }
-        
         setBookmarks(updatedBookmarks);
         saveBookmarks(updatedBookmarks);
         setSelectedBookmarks(new Set());
@@ -348,10 +307,8 @@
         setSaveMessage('✓ 批量修改成功');
         setTimeout(() => setSaveMessage(''), 2000);
       };
-
       const batchDeleteBookmarks = () => {
         if (selectedBookmarks.size === 0) return;
-        
         if (confirm(`确定要删除选中的 ${selectedBookmarks.size} 个书签吗？此操作不可恢复。`)) {
           const updatedBookmarks = bookmarks.filter(b => !selectedBookmarks.has(b.id));
           setBookmarks(updatedBookmarks);
@@ -361,7 +318,6 @@
           setTimeout(() => setSaveMessage(''), 2000);
         }
       };
-
       const deleteCategory = (category) => {
         if (!isAuthenticated) {
           setShowLoginModal(true);
@@ -374,31 +330,25 @@
           setTimeout(() => setSaveMessage(''), 2000);
           return;
         }
-        
         if (confirm(`确定要删除分类"${category}"吗？该分类下的书签将移至"未分类"。`)) {
           const updatedBookmarks = bookmarks.map(b =>
             b.category === category ? { ...b, category: '未分类' } : b
           );
-          
           const newCategories = categories.filter(c => c !== category);
           if (!newCategories.includes('未分类')) {
             newCategories.push('未分类');
           }
-          
           setCategories(newCategories);
           setBookmarks(updatedBookmarks);
           saveSettings(newCategories, bgImage, siteIcon);
           saveBookmarks(updatedBookmarks);
-          
           if (activeCategory === category) {
             setActiveCategory('全部');
           }
-          
           setSaveMessage('✓ 分类已删除');
           setTimeout(() => setSaveMessage(''), 2000);
         }
       };
-
       const startEdit = (bookmark) => {
         if (!isAuthenticated) {
           setShowLoginModal(true);
@@ -414,17 +364,24 @@
           customIcon: bookmark.customIcon || ''
         });
       };
-
       const saveEdit = () => {
+        const category = newBookmark.category || '未分类';
+        
+        // 修复：如果是新分类，添加到分类列表
+        if (!categories.includes(category) && category !== '') {
+          const newCategories = [...categories, category];
+          setCategories(newCategories);
+          saveSettings(newCategories, bgImage, siteIcon);
+        }
+        
         const updatedBookmarks = bookmarks.map(b =>
-          b.id === editingBookmark.id ? { ...editingBookmark, ...newBookmark } : b
+          b.id === editingBookmark.id ? { ...editingBookmark, ...newBookmark, category } : b
         );
         setBookmarks(updatedBookmarks);
         saveBookmarks(updatedBookmarks);
         setEditingBookmark(null);
         setNewBookmark({ title: '', url: '', category: '', customIcon: '' });
       };
-
       const exportBookmarks = () => {
         const dataStr = JSON.stringify(bookmarks, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -439,11 +396,9 @@
         setSaveMessage('✓ 导出成功');
         setTimeout(() => setSaveMessage(''), 2000);
       };
-
       const importBookmarks = (event) => {
         const file = event.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (e) => {
           try {
@@ -452,41 +407,33 @@
               setSaveMessage('✗ 文件格式错误');
               return;
             }
-
             const validBookmarks = imported.filter(b => b.title && b.url);
             const existingUrls = new Set(bookmarks.map(b => b.url));
             const newBookmarks = validBookmarks.filter(b => !existingUrls.has(b.url));
-            
             if (newBookmarks.length === 0) {
               setSaveMessage('⚠ 所有书签已存在');
               return;
             }
-
             const bookmarksWithIds = newBookmarks.map(b => ({
               ...b,
               id: b.id || Date.now() + Math.random(),
               category: b.category || '未分类',
               customIcon: b.customIcon || ''
             }));
-
             const updatedBookmarks = [...bookmarks, ...bookmarksWithIds];
             setBookmarks(updatedBookmarks);
             saveBookmarks(updatedBookmarks);
-            
             setSaveMessage(`✓ 成功导入 ${newBookmarks.length} 个书签`);
           } catch (error) {
             setSaveMessage('✗ 文件解析失败');
           }
         };
-        
         reader.readAsText(file);
         event.target.value = '';
       };
-
       const importHtmlBookmarks = (event) => {
         const file = event.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (e) => {
           try {
@@ -494,63 +441,51 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlContent, 'text/html');
             const links = doc.querySelectorAll('a');
-            
             const imported = Array.from(links).map(link => ({
               title: link.textContent.trim(),
               url: link.href,
               category: '导入',
               customIcon: ''
             }));
-
             const validBookmarks = imported.filter(b => b.title && b.url && b.url.startsWith('http'));
             const existingUrls = new Set(bookmarks.map(b => b.url));
             const newBookmarks = validBookmarks.filter(b => !existingUrls.has(b.url));
-            
             if (newBookmarks.length === 0) {
               setSaveMessage('⚠ 没有新的书签');
               return;
             }
-
             const bookmarksWithIds = newBookmarks.map(b => ({
               ...b,
               id: Date.now() + Math.random()
             }));
-
             if (!categories.includes('导入')) {
               const newCategories = [...categories, '导入'];
               setCategories(newCategories);
               saveSettings(newCategories, bgImage, siteIcon);
             }
-
             const updatedBookmarks = [...bookmarks, ...bookmarksWithIds];
             setBookmarks(updatedBookmarks);
             saveBookmarks(updatedBookmarks);
-            
             setSaveMessage(`✓ 成功导入 ${newBookmarks.length} 个书签`);
           } catch (error) {
             setSaveMessage('✗ HTML 解析失败');
           }
         };
-        
         reader.readAsText(file);
         event.target.value = '';
       };
-
       const applySettings = () => {
         saveSettings(categories, bgImage, siteIcon);
         setSaveMessage('✓ 设置已保存');
         setTimeout(() => setSaveMessage(''), 2000);
         setShowSettings(false);
       };
-
       const filteredBookmarks = activeCategory === '全部'
         ? bookmarks
         : bookmarks.filter(b => b.category === activeCategory);
-
       const backgroundStyle = bgImage
         ? { backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
         : {};
-
       return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50" style={backgroundStyle}>
           <input
@@ -567,7 +502,6 @@
             accept=".html"
             className="hidden"
           />
-
           {!bgImage && (
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
               <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
@@ -575,7 +509,6 @@
               <div className="absolute -bottom-32 left-1/2 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{ animationDelay: '4s' }}></div>
             </div>
           )}
-
           <div className="relative z-10 container mx-auto px-4 py-6 max-w-7xl">
             {saveMessage && (
               <div className="fixed top-4 right-4 z-50">
@@ -584,13 +517,12 @@
                 </p>
               </div>
             )}
-
             {showLoginModal && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowLoginModal(false)}>
                 <div className="bg-white rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
                   <h3 className="text-xl font-semibold mb-4 text-gray-800">管理员登录</h3>
                   <form onSubmit={handleLogin}>
-                    <input
+                                        <input
                       type="password"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
@@ -624,7 +556,6 @@
                 </div>
               </div>
             )}
-
             <div className="mb-6">
               <div className="flex justify-center items-center gap-2 flex-wrap">
                 {categories.map(category => (
@@ -644,7 +575,7 @@
                     >
                       {category}
                     </button>
-                    {category !== '全部' && (
+                    {category !== '全部' && isAuthenticated && (
                       <button
                         onClick={() => deleteCategory(category)}
                         className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
@@ -656,9 +587,10 @@
                   </div>
                 ))}
               </div>
-              <p className="text-center text-xs text-gray-500 mt-2">💡 提示: 拖动书签到分类标签可快速更改分类</p>
+              {isAuthenticated && (
+                <p className="text-center text-xs text-gray-500 mt-2">💡 提示: 拖动书签到分类标签可快速更改分类</p>
+              )}
             </div>
-
             <div className="mb-6">
               <div className="max-w-2xl mx-auto">
                 <div className="relative">
@@ -685,7 +617,6 @@
                 </div>
               </div>
             </div>
-
             <div className="flex justify-center mb-6 gap-2 flex-wrap">
               <button
                 onClick={() => {
@@ -700,7 +631,6 @@
                 {isAddingBookmark ? <XIcon /> : <PlusIcon />}
                 {isAddingBookmark ? '取消' : '添加'}
               </button>
-              
               <button
                 onClick={exportBookmarks}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-md transition-all transform hover:scale-105 text-sm"
@@ -708,7 +638,6 @@
                 <DownloadIcon />
                 导出 JSON
               </button>
-              
               <button
                 onClick={() => {
                   if (!isAuthenticated) {
@@ -724,7 +653,6 @@
                 <UploadIcon />
                 导入 JSON
               </button>
-
               <button
                 onClick={() => {
                   if (!isAuthenticated) {
@@ -740,7 +668,6 @@
                 <UploadIcon />
                 导入 HTML
               </button>
-
               <button
                 onClick={() => {
                   if (!isAuthenticated) {
@@ -754,7 +681,6 @@
                 <SettingsIcon />
                 设置
               </button>
-
               {isAuthenticated ? (
                 <button
                   onClick={handleLogout}
@@ -771,8 +697,7 @@
                 </button>
               )}
             </div>
-
-            {selectedBookmarks.size > 0 && (
+            {selectedBookmarks.size > 0 && isAuthenticated && (
               <div className="max-w-2xl mx-auto mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
                 <p className="text-sm text-gray-700 mb-3">已选择 {selectedBookmarks.size} 个书签</p>
                 <div className="flex gap-2 flex-wrap">
@@ -808,7 +733,6 @@
                 </div>
               </div>
             )}
-
             {showSettings && (
               <div className="max-w-md mx-auto mb-6 p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl">
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">网站设置</h3>
@@ -842,7 +766,6 @@
                 </div>
               </div>
             )}
-
             {(isAddingBookmark || editingBookmark) && (
               <div className="max-w-md mx-auto mb-6 p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl">
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">
@@ -906,7 +829,6 @@
                 </div>
               </div>
             )}
-
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {filteredBookmarks.map((bookmark, index) => (
                 <div
@@ -920,19 +842,20 @@
                     selectedBookmarks.has(bookmark.id) ? 'ring-2 ring-indigo-500' : ''
                   } ${dragOverIndex === index ? 'ring-2 ring-blue-500 scale-105' : ''}`}
                 >
-                  <div className="absolute top-2 left-2 z-10">
-                    <button
-                      onClick={() => toggleBookmarkSelection(bookmark.id)}
-                      className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
-                        selectedBookmarks.has(bookmark.id)
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-white/50 hover:bg-white text-gray-400 hover:text-gray-600'
-                      }`}
-                    >
-                      {selectedBookmarks.has(bookmark.id) && <CheckIcon />}
-                    </button>
-                  </div>
-                  
+                  {isAuthenticated && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <button
+                        onClick={() => toggleBookmarkSelection(bookmark.id)}
+                        className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
+                          selectedBookmarks.has(bookmark.id)
+                            ? 'bg-indigo-600 border-indigo-600 text-white'
+                            : 'bg-white border-gray-400 hover:border-indigo-400 text-gray-400 hover:text-indigo-600'
+                        }`}
+                      >
+                        {selectedBookmarks.has(bookmark.id) && <CheckIcon />}
+                      </button>
+                    </div>
+                  )}
                   <a
                     href={bookmark.url}
                     target="_blank"
@@ -961,7 +884,6 @@
                     </div>
                     <h3 className="font-medium text-gray-800 truncate text-center text-sm">{bookmark.title}</h3>
                   </a>
-                  
                   {isAuthenticated && (
                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
@@ -981,7 +903,6 @@
                 </div>
               ))}
             </div>
-
             {filteredBookmarks.length === 0 && (
               <div className="text-center py-20">
                 <p className="text-gray-500 text-lg">
@@ -989,7 +910,6 @@
                 </p>
               </div>
             )}
-
             <div className="mt-12 text-center text-sm text-gray-500">
               <p>
                 Powered by <a href="https://github.com/lvqopl/onepage" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">onepage</a> | Made by <a href="https://github.com/lvqopl" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">lveopl</a>
@@ -999,7 +919,6 @@
         </div>
       );
     }
-
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<StartPage />);
   </script>
