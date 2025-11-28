@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的标签页 - Cloudflare Pages</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    const { Search, Plus, X, Edit2, Trash2, ExternalLink, Cloud, Sparkles, Download, Upload } = lucide;
+
+    function StartPage() {
+      // 将之前的 React 组件代码完整复制到这里
+      // ... (所有的 state 和函数)
+      
+      return (
+        // ... JSX 代码
+      );
+    }
+
+    ReactDOM.render(<StartPage />, document.getElementById('root'));
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</body>
+</html>
