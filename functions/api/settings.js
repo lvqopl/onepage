@@ -1,3 +1,8 @@
+function checkAuth(request) {
+  const cookies = request.headers.get('Cookie') || '';
+  return cookies.includes('auth_token=');
+}
+
 export async function onRequestGet(context) {
   try {
     const { BOOKMARKS_KV } = context.env;
@@ -9,8 +14,7 @@ export async function onRequestGet(context) {
       siteIcon: ''
     }), {
       headers: { 
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Content-Type': 'application/json'
       }
     });
   } catch (error) {
@@ -25,6 +29,17 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPost(context) {
+  // 检查认证
+  if (!checkAuth(context.request)) {
+    return new Response(JSON.stringify({ 
+      error: '未授权',
+      message: '需要管理员权限'
+    }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
   try {
     const { BOOKMARKS_KV } = context.env;
     const data = await context.request.json();
@@ -36,8 +51,7 @@ export async function onRequestPost(context) {
       message: '设置保存成功' 
     }), {
       headers: { 
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Content-Type': 'application/json'
       }
     });
   } catch (error) {
