@@ -246,8 +246,8 @@
         setDragOverCategory(null);
       };
       const addBookmark = () => {
-        if (newBookmark.title && newBookmark.url) {
-          const category = newBookmark.category || '未分类';
+        if (newBookmark.title && newBookmark.url && newBookmark.category) {
+          const category = newBookmark.category;
           const bookmark = {
             id: Date.now(),
             ...newBookmark,
@@ -331,14 +331,14 @@
           setTimeout(() => setSaveMessage(''), 2000);
           return;
         }
-        if (confirm(`确定要删除分类"${category}"吗？该分类下的书签将移至"未分类"。`)) {
-          const updatedBookmarks = bookmarks.map(b =>
-            b.category === category ? { ...b, category: '未分类' } : b
-          );
+        const categoryBookmarksCount = bookmarks.filter(b => b.category === category).length;
+        const confirmMessage = categoryBookmarksCount > 0 
+          ? `确定要删除分类"${category}"吗？该分类下的 ${categoryBookmarksCount} 个书签也将被删除。此操作不可恢复！`
+          : `确定要删除分类"${category}"吗？`;
+          
+        if (confirm(confirmMessage)) {
+          const updatedBookmarks = bookmarks.filter(b => b.category !== category);
           const newCategories = categories.filter(c => c !== category);
-          if (!newCategories.includes('未分类')) {
-            newCategories.push('未分类');
-          }
           setCategories(newCategories);
           setBookmarks(updatedBookmarks);
           saveSettings(newCategories, bgImage, siteIcon);
@@ -346,7 +346,9 @@
           if (activeCategory === category) {
             setActiveCategory('全部');
           }
-          setSaveMessage('✓ 分类已删除');
+          setSaveMessage(categoryBookmarksCount > 0 
+            ? `✓ 已删除分类及其下的 ${categoryBookmarksCount} 个书签` 
+            : '✓ 分类已删除');
           setTimeout(() => setSaveMessage(''), 2000);
         }
       };
@@ -366,7 +368,13 @@
         });
       };
       const saveEdit = () => {
-        const category = newBookmark.category || '未分类';
+        const category = newBookmark.category;
+        
+        if (!category) {
+          setSaveMessage('⚠ 请选择或输入分类');
+          setTimeout(() => setSaveMessage(''), 2000);
+          return;
+        }
         
         if (!categories.includes(category) && category !== '') {
           const newCategories = [...categories, category];
@@ -407,17 +415,16 @@
               setSaveMessage('✗ 文件格式错误');
               return;
             }
-            const validBookmarks = imported.filter(b => b.title && b.url);
+            const validBookmarks = imported.filter(b => b.title && b.url && b.category);
             const existingUrls = new Set(bookmarks.map(b => b.url));
             const newBookmarks = validBookmarks.filter(b => !existingUrls.has(b.url));
             if (newBookmarks.length === 0) {
-              setSaveMessage('⚠ 所有书签已存在');
+              setSaveMessage('⚠ 所有书签已存在或格式不正确');
               return;
             }
             const bookmarksWithIds = newBookmarks.map(b => ({
               ...b,
               id: b.id || Date.now() + Math.random(),
-              category: b.category || '未分类',
               customIcon: b.customIcon || ''
             }));
             const updatedBookmarks = [...bookmarks, ...bookmarksWithIds];
@@ -527,7 +534,7 @@
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       placeholder="请输入管理员密码"
-                           className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
+                      className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
                       autoFocus
                     />
                     {loginError && (
@@ -579,7 +586,7 @@
                       <button
                         onClick={() => deleteCategory(category)}
                         className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                        title="删除分类"
+                        title="删除分类及其书签"
                       >
                         <XIcon />
                       </button>
@@ -797,7 +804,7 @@
                 </select>
                 <input
                   type="text"
-                  placeholder="或输入新分类名称"
+                  placeholder="或输入新分类名称（必填）"
                   value={newBookmark.category}
                   onChange={(e) => setNewBookmark({ ...newBookmark, category: e.target.value })}
                   className="w-full px-4 py-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-400"
@@ -912,7 +919,7 @@
             )}
             <div className="mt-12 text-center text-sm text-gray-500">
               <p>
-                Powered by <a href="https://github.com/lvqopl/onepage" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">onepage</a> | Made by <a href="https://github.com/lvqopl" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">lvqopl</a>
+                Powered by <a href="https://github.com/lvqopl/onepage" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">onepage</a> | Made by <a href="https://github.com/lvqopl" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline">lveopl</a>
               </p>
             </div>
           </div>
